@@ -22,14 +22,16 @@ function draw(){
     cxt.fillStyle = "#183b26";
     cxt.fillRect(0, 440, canvas.width, 160);
 
-    cxt.fillStyle = "#00ab3c";
-    cxt.fillRect(0, 140, 120, 300);
-
     cxt.fillStyle = "#363636";
     cxt.fillRect(obstacle.x,obstacle.y,obstacle.w,obstacle.h);
+
+    cxt.fillStyle = "#00ab3c";
+    cxt.fillRect(0, 140, 120, 300);
 }
 
 function update() {
+    collided = false;
+
     player.y += player.vy;
     if (player.y + player.h < groundY){
         player.vy += gravity;
@@ -61,16 +63,23 @@ function update() {
         player.x -= obVel1;
     }
 
-    if(player.x < 260 && collided == false) misplaced = true;
+    if(player.x < 260 && !collided)
+        {
+            misplaced = true;
+        }
 
     if(misplaced){
         player.x += 1;
+        if(player.x >= 260){
+            player.x = 260;
+            misplaced = false;
+        }
         console.log(misplaced);
     }
 
 
 
-    /*if(
+    if(
         player.x < horde.x + horde.w &&
         player.x + player.w > horde.x
     ) {
@@ -78,10 +87,10 @@ function update() {
         /*player.w = 70;
         player.h = 40;
         player.x += 30;*/
-        /*player.x = 260
-        obVel1 = 20;
+        player.x = 260
+        obVel1 = 4;
         obstacle.x - canvas.width;
-    }*/
+    }
 
     draw();
     requestAnimationFrame(update);
