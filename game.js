@@ -13,6 +13,8 @@ let rockVelocity = 4;
 let door = {x: canvas.width, y: 300, w: 65, h:140,broken:false};
 let doorVelocity = 3;
 
+let bullets = [];
+
 let gravity = 0.6;
 let jumpPower = -12;
 let misplaced = false;
@@ -35,6 +37,11 @@ function draw(){
 
     cxt.fillStyle = "#00ab3c";
     cxt.fillRect(0, 140, 120, 300);
+
+    cxt.fillStyle = "#b38c29";
+    for(let bullet of bullets){
+        cxt.fillRect(bullet.x, bullet.y, bullet.w, bullet.h)
+    };
 }
 
 function update() {
@@ -56,7 +63,6 @@ function update() {
         if(rockVelocity<20){
             rockVelocity += 0.5;
             console.log("Velocidade da pedra: ", rockVelocity);
-            console.log("Pedra colidiu com player?: ", collided);
         }
     }
 
@@ -67,11 +73,10 @@ function update() {
         if(doorVelocity<15){
             doorVelocity += 0.75;
             console.log("Velocidade da porta: ", doorVelocity);
-            console.log("Porta colidiu com player?:", collided);
         }
     }
 
-    /*if(
+    if(
         player.x < rock.x + rock.w &&
         player.x + player.w > rock.x &&
         player.y < rock.y + rock.h &&
@@ -80,7 +85,8 @@ function update() {
         if(player.y != rock.y)player.x -= 5;
         collided = true;
         player.x -= rockVelocity;
-    }*/
+         console.log("Pedra colidiu com player?: ", collided);
+    }
 
     if(player.x < basePosition && !collided)
         {
@@ -96,7 +102,20 @@ function update() {
         console.log(misplaced);
     }
 
+    for(let i = bullets.length-1;i>=0;i--){
+        bullets[i].x+=bullets[i].speed;
 
+        if(!door.broken && isColliding(bullets[i],door)){
+            door.broken = true;
+            bullet.splice(i,1);
+            console.log("Porta destruída!");
+            break;
+        } 
+
+        if(bullets[i].x > canvas.width){
+            bullets.splice(i,1);
+        }
+    }
 
     if(
         player.x < horde.x + horde.w &&
@@ -110,8 +129,22 @@ function update() {
         door.x = canvas.width;
     }
 
+    if(!door.broken && isColliding(player,door)){
+        player.x -= doorVelocity;
+        console.log("Porta colidiu com player?: ", collided);;
+    }
+
     draw();
     requestAnimationFrame(update);
+}
+
+function isColliding(a,b){
+    return (
+        a.x < b.x + b.w &&
+        a.x + a.b > b.x &&
+        a.y < b.y + b.h &&
+        a.y + a.h > b.y
+    );
 }
 
 document.addEventListener("keydown", (tecla) => {
@@ -122,11 +155,13 @@ document.addEventListener("keydown", (tecla) => {
 })
 
 document.addEventListener("click", function(event){
-    let bullet = {x:player.x,y:player.y-15,w:8,h:5};
-
-    cxt.fillStyle = "#b38c29";
-    cxt.fillRect(bullet.x,bullet.y,bullet.w,bullet.h);
-    bullet.x += 3;
+    bullets.push({
+        x: player.x + player.w,
+        y: player.y + player.h/2,
+        w: 8,
+        h: 5,
+        speed: 6,
+    });
 
     console.log("Disparo efetuado.");
 })
